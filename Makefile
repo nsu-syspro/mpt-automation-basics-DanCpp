@@ -1,30 +1,18 @@
-NAME = $(shell jq -r .name config.json)
-VERSION = $(shell jq -r .version config.json)
+NAME := $(shell jq -r .name config.json)
+VERSION := $(shell jq -r .version config.json)
 
 SOURCES = $(wildcard src/*.c)
-BINARIES = $(patsubst src/%.c,build/%, $(SOURCES))
+TARGET = build/$(NAME)
 
-TESTS_INPUTS = $(wildcard test/*.txt)
-TESTS_EXPECTED = $(TESTS_INPUTS: %.txt, %.expected)
-TESTS = $(TESTS_INPUTS: %.txt, %.test)
+all: $(TARGET)
 
-
-
-all: create_dir $(BINARIES)
-
-create_dir:
-	@if [ ! -d ./build ]; then \
-		mkdir build; \
-	fi
-
-check: $(TESTS)
-
-clean: 
-	@rm -rf build
-	@echo "clean up..."
-
-
-$(BINARIES): $(SOURCES)
+$(TARGET): $(SOURCES) config.json
+	@mkdir -p build
 	cc -DNAME='"$(NAME)"' -DVERSION='"$(VERSION)"' $< -o $@
 
-.PHONY: all check clean
+clean:
+	@rm -rf build
+
+$(SOURCES): config.json
+
+.PHONY: all clean
