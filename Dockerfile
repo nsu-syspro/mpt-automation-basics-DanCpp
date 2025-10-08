@@ -11,6 +11,17 @@ COPY . .
 
 RUN make && make check
 
+COPY --chmod=755 <<"EOF" /start.sh
+#!/bin/bash
+# Динамическое определение имени приложения
+APP_NAME=$(jq -r .name config.json)
+if [ -f "$@" ]; then
+    exec "./build/$APP_NAME" "$@"
+else
+    echo "$@" | exec "./build/$APP_NAME"
+fi
+EOF
 
-ENTRYPOINT ["./build/wordcount"]
-CMD ["default"]
+ENTRYPOINT ["/start.sh"]
+
+
