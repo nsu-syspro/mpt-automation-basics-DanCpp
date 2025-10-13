@@ -11,16 +11,8 @@ COPY . .
 
 RUN make && make check
 
-COPY --chmod=755 <<"EOF" /start.sh
-#!/bin/bash
-APP_NAME=$(jq -r .name config.json)
-if [ -f "$@" ]; then
-    exec "./build/$APP_NAME" "$@"
-else
-    echo "$@" | exec "./build/$APP_NAME"
-fi
-EOF
 
-ENTRYPOINT ["/start.sh"]
+
+ENTRYPOINT ["./src/wordcount"]
 
 
